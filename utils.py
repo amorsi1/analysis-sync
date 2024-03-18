@@ -121,6 +121,7 @@ def cal_paw_luminance(label, cap, size=22):
     # for i in tqdm(range(500)):
     for i in tqdm(range(num_of_frames)):
         frame = cap.read()[1]  # Read the next frame
+        if frame is None: continue #AM edit
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
 
         # calculate the luminance of the four paws

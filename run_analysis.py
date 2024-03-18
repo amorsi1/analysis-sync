@@ -1,8 +1,10 @@
+
 from process import *
 from summary import *
 from dlc_runner import *
 import concurrent.futures
 from joblib import Parallel, delayed
+import tkinter as tk
 
 
 def main():
@@ -25,6 +27,10 @@ def main():
 
     # generate the list of videos to be processed
     video_list = []
+    #AM edit
+    #if not os.path.exists(os.path.join(exp_folder, "videos")):
+    #	os.makedirs(os.path.join(exp_folder, "videos"))
+    #end of AM edit
     for i in os.listdir(os.path.join(exp_folder, "videos")):
         if "body" in i and ".avi" in i:
             video_list.append(i.split("_body")[0])
@@ -46,6 +52,7 @@ def main():
 
     # generate summary csv from the processed videos
     summary_csv = os.path.join(exp_folder, "summary.csv")
+    print("beginning to generate summary") #AM edit
     generate_summary_csv(features_folder, summary_csv)
 
 

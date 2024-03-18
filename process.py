@@ -34,11 +34,11 @@ def extract_features(name, ftir_path, tracking_path, dest_path):
     features["recording_time"] = np.array(recording_time)
     # calculate paw luminance
     (
-        hind_left,
-        hind_right,
-        front_left,
-        front_right,
-        background_luminance,
+hind_left,
+hind_right,
+front_left,
+front_right,
+background_luminance,
     ) = cal_paw_luminance(label, ftir_video, size=22)
 
     features["hind_left_luminance"] = hind_left

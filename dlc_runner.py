@@ -1,7 +1,7 @@
 import os
 import deeplabcut
 
-dlc_config_path = r'D:\DLC\blackbox_dlc_deployment\config.yaml'
+dlc_config_path = r'/home/blackbox/Documents/blackbox_dlc_deployment/config.yaml'
 selected_folders = []
 
 
@@ -65,7 +65,7 @@ def main():
     root = tk.Tk()
     root.withdraw()
 
-    dlc_config_path = r'D:\DLC\arcteryx500-alex-2023-11-04\config.yaml'
+    dlc_config_path = r'/home/blackbox/Documents/blackbox_dlc_deployment/config.yaml'
 
     # Ask the user to select subfolders to process
     selected_folders = select_folders()
