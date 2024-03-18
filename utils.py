@@ -174,6 +174,26 @@ def cal_paw_luminance(label, cap, size=22):
 
     return hind_left, hind_right, front_left, front_right, background_luminance
 
+def mouse_in_center(label, center_roi_cutoff=400):
+    """Calculates whether the mouse is in the center of the chamber,
+    as defined by center_roi_cutoff (in units of pixels).
+
+    Returns a one hot encoded array
+
+    """
+    #
+    centroid = label['sternumhead']
+    if center_roi_cutoff > np.max(np.maximum(centroid.x, centroid.y)):
+        raise ValueError(f"ROI cutoff value of {center_roi_cutoff} is greater than all bodypart coordinate. Consider changing cutoff value")
+
+    in_center = []
+    for index,row in centroid.iterrows():
+        if np.maximum(row.x,row.y) > center_roi_cutoff:
+            in_center.append(True)
+        else:
+            in_center.append(False)
+    return in_center
+
 
 def scale_ftir(hind_left, hind_right):
     """helper function for doing min 95-quntile scaler

@@ -111,6 +111,11 @@ def generate_summary_csv(features_folder, summary_csv):
             > np.percentile(features[video]["background_luminance"], 95)
         )
 
+        #17. percent of time spent in the center of the chamber
+        summary_features[video]['percent_of_time_in_center'] = np.sum(features[video]['animal_in_center'])
+        / len(features[video])
+
+
     df = pd.DataFrame.from_dict(summary_features, orient="index")
 
     # Save DataFrame to CSV with specified precision

@@ -62,6 +62,9 @@ background_luminance,
 
     # calculate when the animal is standing on two hind paws
     features["standing_on_two_paws"] = cal_stand_on_two_paws(front_left, front_right)
+
+    #calculate whether the animal is in the center of the chamber
+    features["animal_in_center"] = mouse_in_center(label)
     # -------------------------------------------------------------
 
     # save extracted features
