@@ -193,6 +193,7 @@ def mouse_in_center(label, distance_from_edge=100, chamber_size=512):
 
     in_center = []
     for index, row in centroid_df.iterrows():
+        #not in center if centroid coord bigger than upper threshold or lower than the lower threshold
         if np.maximum(row.x, row.y) > upper_threshold or np.minimum(row.x, row.y) < distance_from_edge:
             in_center.append(False)
         else:
