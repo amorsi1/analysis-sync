@@ -31,13 +31,14 @@ def select_folder():
 def get_recording_list(directorys):
 
     recording_list = []
+    # avi_files = []
 
     for directory in directorys:
         for root, dirs, files in os.walk(directory):
             for file in files:
-                # file_path = os.path.join(root, file)
                 if file.endswith("trans_resize.avi"):
-                    recording_list.append(root)
+                    file_path = os.path.join(root, file)
+                    recording_list.append(file_path[:-16]) #remove 'trans_resize.avi' from end
                     # avi_files.append(os.path.join(root, file))
     return recording_list
 

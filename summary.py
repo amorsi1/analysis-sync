@@ -267,8 +267,11 @@ def generate_summary_csv(analysis_folder, time_bins):
     summary_dest = os.path.join(analysis_folder, "summary.csv")
 
     features_files = [
-        os.path.join(recording, "features.h5") for recording in recording_list
+        # os.path.join(recording +'' "features.h5") for recording in recording_list
+        os.path.join(recording + "features.h5") for recording in recording_list #changed
+
     ]
+
 
     df = generate_summaries_generic(features_files, time_bins)
 

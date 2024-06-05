@@ -134,12 +134,12 @@ def process_recording(recording):
     print(f"Processing {os.path.basename(recording)}...")
 
     recording_name = os.path.basename(recording)
-    ftir_path = os.path.join(recording, "ftir_resize.avi")
+    ftir_path = recording, "ftir_resize.avi"
 
     dlc_postfix = "DLC_resnet50_arcteryx500Nov4shuffle1_350000"
     # dlc_path = os.path.join(recording, "trans_resize" + dlc_postfix + ".h5")
 
-    dlc_path = os.path.join(recording, "trans_resize" + dlc_postfix + "_filtered.h5")
-    dest_path = os.path.join(recording, "features.h5")
+    dlc_path = os.path.join(recording + "trans_resize" + dlc_postfix + "_filtered.h5") #changed
+    dest_path = os.path.join(recording + "features.h5") #changed
 
     extract_features(recording_name, ftir_path, dlc_path, dest_path)
