@@ -28,7 +28,7 @@ def get_recording_list(directorys):
             for file in files:
                 if file.endswith("trans_resize.avi"):
                     file_path = os.path.join(root, file)
-                    recording_list.append(file_path[:-16])  # remove 'trans_resize.avi' from end
+                    recording_list.append(root)  # remove 'trans_resize.avi' from end
                     # avi_files.append(os.path.join(root, file))
     return recording_list
 
@@ -88,7 +88,8 @@ def main():
     root.withdraw()
 
     # dlc_config_path = r"D:\DLC\arcteryx500-alex-2023-11-04\config.yaml"
-    dlc_config_path = r"/Users/zihealexzhang/work_local/blackbox_data/arcteryx500-alex-2023-11-04/config.yaml"
+    # dlc_config_path = r"/Users/zihealexzhang/work_local/blackbox_data/arcteryx500-alex-2023-11-04/config.yaml"
+    dlc_config_path = r'/home/blackbox/Documents/blackbox_dlc_deployment/config.yaml'
 
     # Ask the user to select subfolders to process
     selected_folders = select_folders()

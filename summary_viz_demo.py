@@ -1,10 +1,10 @@
 import os
 from summary_viz import *
-
+import pandas as pd
 
 # user input: load the summary.csv file
-experiment_folder = "/Users/zihealexzhang/work_local/blackbox_data/test/test_viz/"
-test_df = os.path.join(experiment_folder, "test_df.csv")
+experiment_folder = "/mnt/hd0/gui_outputs/05.25_0min_recordings/6.06_trimmed"
+test_df = os.path.join(experiment_folder, "MERGED_summary.csv")
 test_df = pd.read_csv(test_df)
 
 # --------------------------------
@@ -14,25 +14,27 @@ test_df = pd.read_csv(test_df)
 # (features) columns except for the recording_time
 selected_columns = [
     "distance_traveled (pixel)",
-    "standing_on_two_hind_paws (ratio of time)",
+    "both_front_paws_lifted (ratio of time)",
     "average_hind_left_luminance",
-    "average_hind_right_luminance",
-    "average_front_left_luminance",
-    "average_front_right_luminance",
+    "average_hind_paw_luminance_ratio (r/l)",
+    "average_standing_hind_paw_luminance_ratio (l/r)",
+    "hind_left_paw_lifted_time (seconds)",
+
+
 ]
 
 # (a boolean vector mask) -> user input for selecting rows (a subset of the recordings) to be included in the plot,
 # default would be all recordings selected_rows = [True, True, True, True, True, True, True, True, True, True] user
 # can select a subset of the recordings based on the values in the grouping variables (e.g., pain_model, treatment)
-selected_rows = test_df["Treatment"] == "Veh"
+selected_rows = test_df["Timepoint"] == "0"
 # user can manually select each row to be included in the plot via the user interface
 # selected_rows = [True, False, True, False, True, False, True, False, True, False]
 
 # (a string for the variable name) -> user input for selecting the grouping variable
-group_variable = "pain_model"
+group_variable = "PV: virus" #put in full column name
 
 # (a True/False boolean value) -> user input for whether ranking the columns by statistical significance between groups
-sort_by_significance = True
+sort_by_significance = False
 
 # --------------------------------
 
@@ -46,13 +48,13 @@ df_plot = summary_viz_preprocess(
 
 
 # generate the PairGrid plot
-generate_PairGrid_plot(
-    df=df_plot, group_variable=group_variable, sort_by_significance=sort_by_significance
-)
+# generate_PairGrid_plot(
+#     df=df_plot, group_variable=group_variable, diag_kind='reg',upper_kind='kde',lower_kind='kde', dest_path=os.path.join(experiment_folder,'pairplot.png'),sort_by_significance=sort_by_significance
+# )
 
 # generate the bar plots
 generate_bar_plots(
-    df=df_plot, group_variable=group_variable, sort_by_significance=sort_by_significance
+    df=df_plot, group_variable=group_variable, dest_path=os.path.join(experiment_folder,'barplot.png'),sort_by_significance=sort_by_significance
 )
 
 

@@ -38,8 +38,8 @@ def get_recording_list(directorys):
             for file in files:
                 if file.endswith("trans_resize.avi"):
                     file_path = os.path.join(root, file)
-                    recording_list.append(file_path[:-16]) #remove 'trans_resize.avi' from end
-                    # avi_files.append(os.path.join(root, file))
+                    # recording_list.append(file_path[:-16]) #remove 'trans_resize.avi' from end
+                    recording_list.append(root)
     return recording_list
 
 
@@ -276,3 +276,20 @@ def both_front_paws_lifted(front_left, front_right, threshold=1e-4):
     return a one-hot vector for when the animal is standing on two hind paws"""
 
     return ((front_left < threshold) * (front_right < threshold)) == 1
+
+def is_paw_guarding(front_left, front_right, hind_left, hind_right, threshold=1e-4) -> bool:
+    """
+    Determines if mouse is guarding one of its hindpaws, regardless of whether it is the left or right paw.
+    Returns a bool
+    """
+    # Check if both front paws are on the ground
+    both_front_paws_down = front_left >= threshold and front_right >= threshold
+
+    if not both_front_paws_down:
+        return False
+
+    # Check if one hindpaw is up and the other is down
+    left_hindpaw_up = hind_left < threshold and hind_right >= threshold
+    right_hindpaw_up = hind_left >= threshold and hind_right < threshold
+
+    return left_hindpaw_up or right_hindpaw_up

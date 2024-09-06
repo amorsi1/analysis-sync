@@ -25,7 +25,9 @@ def extract_features(name, ftir_path, tracking_path, dest_path):
 
     # ----calculate paw luminance, average paw luminance ratio, and paw luminance log-ratio----
     # read ftir video
+    print(ftir_path)
     ftir_video = cv2.VideoCapture(ftir_path)
+    print(f'reading video {ftir_video}') #changed
     # calculate paw luminance
     (
         hind_left,
@@ -64,6 +66,9 @@ def extract_features(name, ftir_path, tracking_path, dest_path):
 
     # calculate when the animal is standing on two hind paws
     features["both_front_paws_lifted"] = both_front_paws_lifted(front_left, front_right)
+
+    # calculates when the animal is guarding its paw (all paws down except one of the hind ones)
+    features["paw_guarding"] = is_paw_guarding(front_left, front_right, hind_left, hind_right)
 
     # body parts distance
 
@@ -134,12 +139,12 @@ def process_recording(recording):
     print(f"Processing {os.path.basename(recording)}...")
 
     recording_name = os.path.basename(recording)
-    ftir_path = recording, "ftir_resize.avi"
+    ftir_path = os.path.join(recording, "ftir_resize.avi")
 
     dlc_postfix = "DLC_resnet50_arcteryx500Nov4shuffle1_350000"
     # dlc_path = os.path.join(recording, "trans_resize" + dlc_postfix + ".h5")
 
-    dlc_path = os.path.join(recording + "trans_resize" + dlc_postfix + "_filtered.h5") #changed
-    dest_path = os.path.join(recording + "features.h5") #changed
+    dlc_path = os.path.join(recording, "trans_resize" + dlc_postfix + "_filtered.h5") #changed
+    dest_path = os.path.join(recording, "features.h5") #changed
 
     extract_features(recording_name, ftir_path, dlc_path, dest_path)
