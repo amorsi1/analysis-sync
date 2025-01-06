@@ -14,7 +14,7 @@ from scipy.ndimage import gaussian_filter1d
 def select_folder():
     import tkinter as tk
     from tkinter import filedialog
-    
+
     root = tk.Tk()
     root.withdraw()
 
@@ -28,6 +28,21 @@ def select_folder():
     return folder
 
 
+def get_recording_list(directorys):
+
+    recording_list = []
+    # avi_files = []
+
+    for directory in directorys:
+        for root, dirs, files in os.walk(directory):
+            for file in files:
+                if file.endswith("trans_resize.avi"):
+                    file_path = os.path.join(root, file)
+                    # recording_list.append(file_path[:-16]) #remove 'trans_resize.avi' from end
+                    recording_list.append(root)
+    return recording_list
+
+
 def cal_distance_(label, bodypart="tailbase"):
     """helper function for "calculate distance traveled"""
     x = gaussian_filter1d(label[bodypart]["x"].values, 3)
@@ -35,7 +50,55 @@ def cal_distance_(label, bodypart="tailbase"):
     d_x = np.diff(x)
     d_y = np.diff(y)
     d_location = np.sqrt(d_x**2 + d_y**2)
+    d_location = np.insert(d_location, 0, 0)
     return d_location
+
+
+def get_distance(x1, y1, x2, y2):
+    """helper function to calculate distance between two points"""
+    return np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+
+def body_parts_distance(label, bp1, bp2):
+    """helper function to calculate distance between two body parts"""
+    x1 = label[bp1]["x"]
+    y1 = label[bp1]["y"]
+    x2 = label[bp2]["x"]
+    y2 = label[bp2]["y"]
+    return get_distance(x1, y1, x2, y2)
+
+
+def get_vector(label, bp1, bp2):
+    """helper function to calculate vector from bp1 to bp2"""
+    x1 = label[bp1]["x"]
+    y1 = label[bp1]["y"]
+    x2 = label[bp2]["x"]
+    y2 = label[bp2]["y"]
+    return np.array([x2 - x1, y2 - y1])
+
+
+def get_angle(v1, v2):
+    """helper function to calculate angle between two vectors"""
+    theta = np.sum(v1 * v2, axis=0) / (
+        np.linalg.norm(v1, axis=0) * np.linalg.norm(v2, axis=0)
+    )
+    angle = np.arccos(theta) / np.pi * 180
+    sign = np.sign(np.cross(v1, v2, axis=0))
+    sign[sign == 0] = 1  # if cross product is 0, set sign to 1
+    counterclockwise_angle = angle * sign
+    return counterclockwise_angle
+
+
+# def cal_body_mean_movement(label):
+#     """using DLC tracking of several main body parts to calculate mean body movement
+#        first calculate the frame to frame speed for each body part, then average them
+#        return body_mean_movement"""
+#     bodyparts = ['tailbase', 'centroid', 'neck', 'snout', 'hlpaw', 'hrpaw', 'flpaw', 'frpaw']
+#     place_holder = {}
+#     for body in bodyparts:
+#         place_holder[body] = cal_distance_(label, body)
+#
+#     return np.mean(np.vstack([place_holder[body] for body in bodyparts]).T, axis=1, keepdims=True)
 
 
 def four_point_transform(image, tx, ty, cx, cy, wid, length):
@@ -107,10 +170,10 @@ def cal_paw_luminance(label, cap, size=22):
     hind_right: paw luminance of the right hind paw
     """
 
-    num_of_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    fps = cap.get(cv2.CAP_PROP_FPS)
+    # num_of_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    # fps = cap.get(cv2.CAP_PROP_FPS)
 
-    print(f"video length is {num_of_frames/fps/60} mins")
+    # print(f"video length is {num_of_frames/fps/60} mins")
 
     hind_right = []
     hind_left = []
@@ -118,10 +181,16 @@ def cal_paw_luminance(label, cap, size=22):
     front_left = []
     background_luminance = []
 
+    # loop infinitely because we cannot trust `CAP_PROP_FRAME_COUNT`
+    # https://stackoverflow.com/questions/31472155/python-opencv-cv2-cv-cv-cap-prop-frame-count-get-wrong-numbers
     # for i in tqdm(range(500)):
-    for i in tqdm(range(num_of_frames)):
-        frame = cap.read()[1]  # Read the next frame
-        if frame is None: continue #AM edit
+    i = 0
+    while True:
+        ret, frame = cap.read()  # Read the next frame
+
+        if not ret:
+            break
+
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
 
         # calculate the luminance of the four paws
@@ -152,6 +221,8 @@ def cal_paw_luminance(label, cap, size=22):
         # calculate background luminance
         background_luminance.append(np.nanmean(frame))
 
+        i += 1
+
     hind_right = np.array(hind_right)
     hind_left = np.array(hind_left)
     front_right = np.array(front_right)
@@ -172,27 +243,7 @@ def cal_paw_luminance(label, cap, size=22):
     front_left = denoise(front_left, background_luminance)
     front_right = denoise(front_right, background_luminance)
 
-    return hind_left, hind_right, front_left, front_right, background_luminance
-
-def mouse_in_center(label, center_roi_cutoff=400):
-    """Calculates whether the mouse is in the center of the chamber,
-    as defined by center_roi_cutoff (in units of pixels).
-
-    Returns a one hot encoded array
-
-    """
-    #
-    centroid = label['sternumhead']
-    if center_roi_cutoff > np.max(np.maximum(centroid.x, centroid.y)):
-        raise ValueError(f"ROI cutoff value of {center_roi_cutoff} is greater than all bodypart coordinate. Consider changing cutoff value")
-
-    in_center = []
-    for index,row in centroid.iterrows():
-        if np.maximum(row.x,row.y) > center_roi_cutoff:
-            in_center.append(True)
-        else:
-            in_center.append(False)
-    return in_center
+    return hind_left, hind_right, front_left, front_right, background_luminance, i
 
 
 def scale_ftir(hind_left, hind_right):
@@ -219,9 +270,26 @@ def scale_ftir(hind_left, hind_right):
     return (left_paw, right_paw)
 
 
-def cal_stand_on_two_paws(front_left, front_right, threshold=0.05):
+def both_front_paws_lifted(front_left, front_right, threshold=1e-4):
     """helper function for calculating when both of the front paws are off the ground,
     which is quantified as the average luminance of the two front paws is below a threshold.
     return a one-hot vector for when the animal is standing on two hind paws"""
 
     return ((front_left < threshold) * (front_right < threshold)) == 1
+
+def is_paw_guarding(front_left, front_right, hind_left, hind_right, threshold=1e-4) -> bool:
+    """
+    Determines if mouse is guarding one of its hindpaws, regardless of whether it is the left or right paw.
+    Returns a bool
+    """
+    # Check if both front paws are on the ground
+    both_front_paws_down = front_left >= threshold and front_right >= threshold
+
+    if not both_front_paws_down:
+        return False
+
+    # Check if one hindpaw is up and the other is down
+    left_hindpaw_up = hind_left < threshold and hind_right >= threshold
+    right_hindpaw_up = hind_left >= threshold and hind_right < threshold
+
+    return left_hindpaw_up or right_hindpaw_up
