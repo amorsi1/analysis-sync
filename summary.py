@@ -239,6 +239,11 @@ def generate_summary_generic(features_files: List[str], time_bin=(0, -1)):
             features[video]["hip_tailbase_hrpaw_angle"]
         )
 
+        #17. percent of time spent in the center of the chamber
+        summary_features[video]['percent_of_time_in_center'] = np.sum(features[video]['animal_in_center'])
+        / len(features[video])
+
+
     df = pd.DataFrame.from_dict(summary_features, orient="index")
 
     # # Save DataFrame to CSV with specified precision
